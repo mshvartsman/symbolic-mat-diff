@@ -34,6 +34,14 @@ def _matDiff_apply(expr, syms):
         raise TypeError("Don't know how to differentiate class %s", expr.__class__) 
 
 
+def _diff_to_grad(expr, s):
+    # if expr is a trace, sum of traces, or scalar times a trace, we can do it
+    # scalar times a trace 
+    if expr.is_Mul and expr.args[0].is_constant() and expr.args[1].is_Trace:
+        return (expr.args[0] * expr.args[1].arg.xreplace({d(s): 1}))
+    else: 
+        raise RuntimeError("Don't know how to convert %s to gradient!" % expr)
+
 def matDiff(expr, syms):
     # diff wrt 1 element wrap in list
     try:
@@ -48,6 +56,11 @@ def matDiff(expr, syms):
 
     return [diff_and_simplify(expr, s).doit() for s in syms]
 
+
+
 def matGrad(expr, syms):
     """Compute matrix gradient by matrix differentiation
     """
+    diff = matDiff(expr, syms)
+    grad = [_diff_to_grad(e, s) for e, s in zip(diff, syms)]
+    return grad

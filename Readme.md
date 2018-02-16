@@ -15,11 +15,11 @@ sudo apt-get install python3-sympy
 ##Example usage:
 
 from symbdiff import diff
-a=diff.MatrixSymbol('a',1,5)
+a=diff.MatrixSymbol('a',5,1)
 print(diff.matDiff(diff.Transpose(a)*a,a))
 [a'*d(a) + d(a)'*(a)]
 
 X=diff.MatrixSymbol('X',5,5)
-print(diff.matDiff(a*X*diff.Transpose(a),a))
+print(diff.matDiff(diff.Transpose(a)*X*a/(a*diff.Transpose(a)),a))
 
 [d(a)*(X*a') + a*X*d(a)' + a*0*(a')]
